@@ -12,4 +12,4 @@
 
 Ознакомиться с презентацией защиты плана можно [тут](https://github.com/SerikovAleksey/GPS-Tracer/blob/main/GPS%20Tracer.pptx).
 
-А также получить подробную версию плана можно [тут](https://github.com/SerikovAleksey/GPS-Tracer/blob/main/PLAN.md)
+А также получить подробную версию плана можно [тут](https://github.com/SerikovAleksey/GPS-Tracer/blob/main/PLAN.md).
