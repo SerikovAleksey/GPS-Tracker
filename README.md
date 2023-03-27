@@ -10,4 +10,6 @@
 - быстрая передача данных на телефон
 - долгое время работы без подзаряда
 
-Ознакомиться с презентацией защиты плана [тут](https://github.com/SerikovAleksey/GPS-Tracer/blob/main/GPS%20Tracer.pptx)
+Ознакомиться с презентацией защиты плана можно [тут](https://github.com/SerikovAleksey/GPS-Tracer/blob/main/GPS%20Tracer.pptx).
+
+А также получить подробную версию плана можно [тут](https://github.com/SerikovAleksey/GPS-Tracer/blob/main/PLAN.md)
