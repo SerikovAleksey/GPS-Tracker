@@ -1,4 +1,4 @@
-# GPS-Tracer
+# GPS-Tracker
 Репозиторий с проектом по курсу ПФТиКМИ студентов 2 курса ФАКТ:
 - [Бунакова Егора](https://vk.com/egobun)
 - [Серикова Алексея](https://vk.com/lehand_man)
