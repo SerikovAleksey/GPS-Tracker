@@ -1,36 +1,52 @@
 #ifndef _NMEA_H_
 #define _NMEA_H_
 
+//---------INCLUDES---------//
 #include "stm32f1xx_hal.h"
 #include <string.h>
-#include<stdlib.h>
+#include <stdlib.h>
 
+//---------DEFINES---------//
+#define VALID 'A' // data from GPS valid
+#define INVALID 'V' // data from GPS invalid
+#define AVERAGE 'A' // average point (it says that current point deffers from the previuos)
+#define SPECIAL 'S' // special point (it says that button "safe point" was pushed)
 
-#define VALID 'A'
-#define INVALID 'V'
+//---------VARIABLES---------//
+static char string[3] = {"RMC"}; // need to find necessary string with current location, time and date
+static char time[12] = { 0 }; // buf for time
+static char location[30] = { 0 }; // buf for location
+static int data_valid = 0; // says that location can be read
 
 typedef struct {
-	int hour;
-	int min;
-	int sec;
-}TIME;
+	uint8_t *buf;
+	uint16_t size;
+}BUF; // struct to save buffer and its size
 
-typedef struct {
-	int lat_deg;
-	int lat_min_int;
-	int lat_min_frac;
-	char uLat;
-	int lon_deg;
-	int lon_min_int;
-	int lon_min_frac;
-	char uLon;
-}LOCATION;
 
-int RMC_check_valid_data(char *nmea_buffer);
+static uint8_t transmit_buf[15000] = {0};
+static uint32_t ind_t = 6;
+static uint32_t ind_c = 0;
 
-TIME get_time(void);
 
-LOCATION get_location(void);
+extern UART_HandleTypeDef huart2; // UART
 
+//---------FUNCTIONS---------//
+
+// Function to get data from GPS
+int get_data_from_GPS(uint8_t *nmea_buffer, uint8_t type_data);
+
+// Function to transmit data 
+void transmit_data(uint8_t *buf, uint16_t len);
+
+void set_time(uint8_t type_data);
+
+void set_date();
+
+void set_coordinates();
+
+void make_buf(uint8_t type_data);
+
+BUF get_transmit_buf();
 
 #endif // _NMEA_H_
