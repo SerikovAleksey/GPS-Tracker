@@ -13,3 +13,5 @@
 Ознакомиться с презентацией защиты плана можно [тут](https://github.com/SerikovAleksey/GPS-Tracer/blob/main/GPS%20Tracer.pptx).
 
 А также получить подробную версию плана можно [тут](https://github.com/SerikovAleksey/GPS-Tracer/blob/main/PLAN.md).
+
+Презентацию с защитой макета можно посмотреть [тут](https://github.com/SerikovAleksey/GPS-Tracker/blob/main/maket_defence.pptx).
