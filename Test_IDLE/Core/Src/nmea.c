@@ -9,7 +9,6 @@ int get_data_from_GPS(uint8_t *nmea_buffer, uint8_t type_data)
 	uint8_t amount_comma = 0;
 	uint8_t i = 0;
 
-	
 	while (nmea_buffer[nmea_indx] != string[str_indx])
 	{
 		nmea_indx++;

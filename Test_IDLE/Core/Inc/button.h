@@ -17,5 +17,6 @@ extern TIM_HandleTypeDef htim2;
 
 //---------FUNCTIONS---------//
 uint16_t Read_Button_Time_Push(uint16_t but_name, uint16_t t0);
+void Delay(uint16_t time_ms);
 
 #endif //_BUTTON_

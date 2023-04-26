@@ -24,7 +24,7 @@ typedef struct {
 }BUF; // struct to save buffer and its size
 
 
-static uint8_t transmit_buf[15000] = {0};
+static uint8_t transmit_buf[17000] = {0};
 static uint32_t ind_t = 6;
 static uint32_t ind_c = 0;
 
