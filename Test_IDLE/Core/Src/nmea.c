@@ -1,14 +1,11 @@
 #include "nmea.h"
 
-int get_data_from_GPS(uint8_t *nmea_buffer, uint8_t type_data) 
+int check_valid_data(uint8_t *nmea_buffer)
 {
+	uint16_t k = 0;
 	uint16_t nmea_indx = 0;
 	uint8_t str_indx = 0;
 	uint16_t len_str = strlen (string);
-	uint16_t k = 0;
-	uint8_t amount_comma = 0;
-	uint8_t i = 0;
-
 	while (nmea_buffer[nmea_indx] != string[str_indx])
 	{
 		nmea_indx++;
@@ -32,7 +29,64 @@ int get_data_from_GPS(uint8_t *nmea_buffer, uint8_t type_data)
 			else nmea_indx++;
 		}
 		  
-		 
+		if (nmea_buffer[nmea_indx] == INVALID) 
+		{
+			data_valid = -1;
+			return -1;
+		}
+		if (nmea_buffer[nmea_indx] == VALID) 
+		{
+			data_valid = 1;
+			return 1;
+		}
+}
+	return 0;
+}
+
+int get_data_from_GPS(uint8_t *nmea_buffer, uint8_t type_data) 
+{
+	uint8_t str_indx = 0;
+	uint16_t len_str = strlen (string);
+	uint16_t nmea_indx = 0;
+	uint8_t amount_comma = 0;
+	uint8_t i = 0;
+		uint16_t k = 0;
+		while (nmea_buffer[nmea_indx] != string[str_indx])
+	{
+		nmea_indx++;
+	}
+	
+	while (len_str > str_indx && nmea_buffer[nmea_indx++] == string[str_indx])
+	{
+		str_indx++;
+	}
+	
+	if (len_str == str_indx)
+	{
+		while (nmea_buffer[nmea_indx] != VALID && nmea_buffer[nmea_indx] != INVALID)
+		{
+			if (nmea_buffer[nmea_indx] == ',' && k < 6) nmea_indx++;
+			if (k < 6) 
+			{
+				time[k] = nmea_buffer[nmea_indx++];
+				k++;
+			}
+			else nmea_indx++;
+		}
+		  
+		if (nmea_buffer[nmea_indx] == INVALID) 
+		{
+			data_valid = -1;
+			//return -1;
+		}
+		if (nmea_buffer[nmea_indx] == VALID) 
+		{
+			data_valid = 1;
+			//return 1;
+		}
+}
+
+	//check_valid_data(nmea_buffer);
 		if (nmea_buffer[nmea_indx] == INVALID) 
 		{
 			data_valid = -1;
@@ -57,7 +111,6 @@ int get_data_from_GPS(uint8_t *nmea_buffer, uint8_t type_data)
 			time[k++] = nmea_buffer[nmea_indx++];
 		}
 		if (data_valid == 1) make_buf(type_data);
-	}
 	return data_valid; 
 } // get_data_from_GPS 
 
@@ -134,7 +187,13 @@ void make_buf(uint8_t type_data)
 
 void transmit_data(uint8_t *buf, uint16_t len)
 {
-	HAL_UART_Transmit(&huart2, buf, len, 100);
+	uint16_t integer = len / 98;
+	uint16_t floatt = len % 98;
+	for(uint16_t i = 0; i < integer; i ++)
+	{
+		HAL_UART_Transmit(&huart2, &buf[98 * i], len, 100);
+	}
+	HAL_UART_Transmit(&huart2, &buf[98 * integer], floatt, 100);
 	free(buf);
 } // transmit_data
 

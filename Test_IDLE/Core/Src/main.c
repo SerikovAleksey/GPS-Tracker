@@ -57,6 +57,27 @@ uint8_t push_transmit = 0;
 uint8_t push_make_point = 0;
 uint16_t t0 = 0;
 uint8_t check_power = 0;
+//int data_valid = 0;
+uint8_t buf[200] = {'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+										'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',	
+										'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+										'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+										'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+										'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',	
+										'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+										'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+										'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+										'1', '1', '1', '1', '1', '1', '2', '1', '1', '1',
+										'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+										'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',	
+										'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+										'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+										'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+										'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',	
+										'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+										'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+										'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+										'1', '1', '1', '1', '1', '1', '1', '1', '1', '2'};
 
 uint16_t tt = 0;
 		uint16_t t2 = 0;
@@ -114,12 +135,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	
 	if (GPIO_Pin == BUT_MAKE_POINT) // make a point
 	{
-		if (Read_Button_Time_Push(GPIO_Pin, t0) < 200) push_make_point = 1;
+		if (Read_Button_Time_Push(GPIO_Pin, t0) < 400) push_make_point = 1;
 	}
 	
 	if (GPIO_Pin == BUT_TRANSMIT_DATA) // send data
 	{
-		if (Read_Button_Time_Push(GPIO_Pin, t0) < 200) push_transmit = 1;
+		if (Read_Button_Time_Push(GPIO_Pin, t0) < 400) push_transmit = 1;
 	}
 	
 }
@@ -164,20 +185,32 @@ int main(void)
 	HAL_UART_Receive_IT(&huart1, (uint8_t*)rx_buffer, rx_buffer_size);
 	HAL_TIM_Base_Start(&htim2);						
 
-	if (!check_power)
+	/*if (!check_power)
 	{
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_SET);
 		Delay(4000);
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);
 		check_power = 1;
-	}
-
+	}*/
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+		if (check_valid_data(rx_buffer) == -1) 
+		{
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_SET);
+			Delay(300);
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);
+		}
+		else if (check_valid_data(rx_buffer) && !push_on_off)
+		{
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
+			Delay(300);
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
+		}
+		
 		uint8_t *buffer = get_transmit_buf().buf;
 		uint16_t size = get_transmit_buf().size;
 		
@@ -191,12 +224,14 @@ int main(void)
 		{
 			get_data_from_GPS(rx_buffer, SPECIAL);
 			push_make_point = 0;
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
 		}
-		Delay(1000);
-		if (push_on_off == 2) 
+		Delay(300);
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
+		if (push_on_off == 2 ) 
 		{
 			Save_Data(buf_u8_to_u16(get_transmit_buf().buf, get_transmit_buf().size), get_transmit_buf().size / 2 );
-			push_on_off = 0;
+			if (push_on_off == 2) push_on_off = 0;
 		}
 		if (push_on_off == 0) 
 		{
@@ -205,7 +240,7 @@ int main(void)
 		
 		if (push_transmit)
 		{
-			if (buffer[6] != AVERAGE) 
+			if (buffer[6] != AVERAGE || buffer[6] != SPECIAL) 
 			{
 				size = (*((uint32_t*)(ADDR_FLASH_PAGE_127 + 2))- '0') * 2 ;
 				transmit_data(buf_u16_to_u8(Read_Data(buf_u8_to_u16(buffer, size)), size / 2), size);

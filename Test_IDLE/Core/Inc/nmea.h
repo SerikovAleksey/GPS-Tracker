@@ -36,6 +36,8 @@ extern UART_HandleTypeDef huart2; // UART
 // Function to get data from GPS
 int get_data_from_GPS(uint8_t *nmea_buffer, uint8_t type_data);
 
+int check_valid_data(uint8_t *buf);
+
 // Function to transmit data 
 void transmit_data(uint8_t *buf, uint16_t len);
 
