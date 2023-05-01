@@ -1,5 +1,8 @@
 #include "nmea.h"
 
+uint8_t transmit_buf[5700] = {0};
+
+
 int check_valid_data(uint8_t *nmea_buffer)
 {
 	uint16_t k = 0;
@@ -144,19 +147,19 @@ void set_coordinates()
 	transmit_buf[3 + ind_c + ind_t] = location[3];
 	transmit_buf[4 + ind_c + ind_t] = location[5];
 	transmit_buf[5 + ind_c + ind_t] = location[6];
-	transmit_buf[6 + ind_c + ind_t] = location[7];
-	transmit_buf[7 + ind_c + ind_t] = location[10];
-	transmit_buf[8 + ind_c + ind_t] = location[11];
-	transmit_buf[9 + ind_c + ind_t] = location[12];
-	transmit_buf[10+ ind_c + ind_t] = location[13];
-	transmit_buf[11 + ind_c + ind_t] = location[14];
-	transmit_buf[12 + ind_c + ind_t] = location[15];
-	transmit_buf[13 + ind_c + ind_t] = location[17];
-	transmit_buf[14 + ind_c + ind_t] = location[18];
-	transmit_buf[15 + ind_c + ind_t] = location[19];
-	transmit_buf[16 + ind_c + ind_t] = location[22];
+	//transmit_buf[6 + ind_c + ind_t] = location[7];
+	transmit_buf[6 + ind_c + ind_t] = location[10];
+	transmit_buf[7 + ind_c + ind_t] = location[11];
+	transmit_buf[8 + ind_c + ind_t] = location[12];
+	transmit_buf[9+ ind_c + ind_t] = location[13];
+	transmit_buf[10 + ind_c + ind_t] = location[14];
+	transmit_buf[11 + ind_c + ind_t] = location[15];
+	transmit_buf[12 + ind_c + ind_t] = location[17];
+	transmit_buf[13 + ind_c + ind_t] = location[18];
+	//transmit_buf[15 + ind_c + ind_t] = location[19];
+	transmit_buf[14 + ind_c + ind_t] = location[22];
 
-	ind_c += 17;
+	ind_c += 15;
 } //set_coordinates
 
 
@@ -171,7 +174,7 @@ void make_buf(uint8_t type_data)
 	}
 	else 
 	{
-		if (((transmit_buf[4 + ind_t + (ind_c - 17)] != location[5]) || (transmit_buf[13 + ind_t + (ind_c - 17)] != location[17])) && type_data == AVERAGE)
+		if (((transmit_buf[4 + ind_t + (ind_c - 15)] != location[5]) || (transmit_buf[13 + ind_t + (ind_c - 15)] != location[17])) && type_data == AVERAGE)
 		{
 		set_time(type_data);
 		set_coordinates();
@@ -194,7 +197,7 @@ void transmit_data(uint8_t *buf, uint16_t len)
 		HAL_UART_Transmit(&huart2, &buf[98 * i], len, 100);
 	}
 	HAL_UART_Transmit(&huart2, &buf[98 * integer], floatt, 100);
-	free(buf);
+	//free(buf);
 } // transmit_data
 
 

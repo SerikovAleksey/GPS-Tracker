@@ -4,7 +4,7 @@
 //---------INCLUDES---------//
 #include "stm32f1xx_hal.h"
 #include <string.h>
-#include <stdlib.h>
+//#include <stdlib.h>
 
 //---------DEFINES---------//
 #define VALID 'A' // data from GPS valid
@@ -24,7 +24,6 @@ typedef struct {
 }BUF; // struct to save buffer and its size
 
 
-static uint8_t transmit_buf[17000] = {0};
 static uint32_t ind_t = 6;
 static uint32_t ind_c = 0;
 
