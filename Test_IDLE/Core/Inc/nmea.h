@@ -24,10 +24,6 @@ typedef struct {
 }BUF; // struct to save buffer and its size
 
 
-static uint32_t ind_t = 6;
-static uint32_t ind_c = 0;
-
-
 extern UART_HandleTypeDef huart2; // UART
 
 //---------FUNCTIONS---------//
@@ -49,5 +45,7 @@ void set_coordinates();
 void make_buf(uint8_t type_data);
 
 BUF get_transmit_buf();
+void set_ind_t(uint32_t num);
+void set_ind_c(uint32_t num);
 
 #endif // _NMEA_H_

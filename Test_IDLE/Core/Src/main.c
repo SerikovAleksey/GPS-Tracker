@@ -420,7 +420,7 @@ int main(void)
 			Delay(300);
 			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);
 		}
-		else if (check_valid_data(rx_buffer) && !push_on_off)
+		else if (check_valid_data(rx_buffer) && !push_on_off && !check_capacity)
 		{
 			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
 			Delay(300);
@@ -437,8 +437,15 @@ int main(void)
 		}
 		else u16_size = size / 2;
 		
-		static uint16_t buf_u16[2800];
-		static uint16_t new_buf[2800];
+		
+		if (size >= 980 && size < 1010)
+		{
+			Save_Data(buf_u8_to_u16(buffer, size), u16_size + 1);
+			Save_Data(&amount_lists, 1);
+			set_ind_c(0);
+			set_ind_t(0);
+			amount_lists++;
+		}
 		
 		if (push_on_off == 1 && !push_make_point)
 		{
@@ -456,9 +463,12 @@ int main(void)
 		
 		if (push_on_off == 2) 
 		{
-			//uint16_t *new_buf = malloc(u16_size + 2);
-			Save_Data(buf_u8_to_u16(buffer, size, buf_u16), u16_size, new_buf);
-			if (push_on_off == 2) push_on_off = 0;
+			Save_Data(buf_u8_to_u16(buffer, size), u16_size + 1);
+			Save_Data(&amount_lists, 1);
+			push_on_off = 0;
+			set_ind_c(0);
+			set_ind_t(0);
+			amount_lists++;
 		}
 		if (push_on_off == 0) 
 		{
@@ -467,30 +477,36 @@ int main(void)
 		
 		if (push_transmit)
 		{
-			if (buffer[6] == AVERAGE || buffer[6] == SPECIAL) 
+			//if (buffer[6] == AVERAGE || buffer[6] == SPECIAL) 
 			{
-				transmit_data(buffer, size);
-
+				//transmit_data(buffer, size);
 			}
-				else 
+				//else 
 			{
-				uint16_t lists = (*((uint32_t*)(ADDR_FLASH_PAGE_127))- '0');
-			  size = (*((uint32_t*)(ADDR_FLASH_PAGE_127 + 2))- '0');
-			  uint16_t len = (lists - 1)* 512 + size;
+				uint16_t lists = 0;
+				if ((*((uint32_t*)(ADDR_AMOUNT_PAGES))) == 0xFF) lists = 0;
+				else lists = (*((uint32_t*)(ADDR_AMOUNT_PAGES)));
+			  //size = (*((uint32_t*)(ADDR_FLASH_PAGE_127 + 2))- '0');
+			  //uint16_t len = (lists - 1)* 512 + size;
 				//uint16_t new_buf[len];
-				transmit_data(buf_u16_to_u8(Read_Data(new_buf), len * 2 - 4, buffer), len * 2 - 4);
+				for (uint16_t i = 0; i < lists; i++)
+				{
+					uint32_t add = ((uint32_t)(ADDR_FLASH_PAGE_126 -((uint32_t)(0x0000400 * (uint32_t)i))));
+					uint16_t len = (*((uint32_t*)(ADDR_FLASH_PAGE_126 -((uint32_t)(0x0000400 * (uint32_t)i)))));
+					transmit_data(buf_u16_to_u8(Read_Data(add, len), len), len * 2);
+				}
+				//transmit_data(buf_u16_to_u8(Read_Data(new_buf), len * 2 - 4, buffer), len * 2 - 4);
 			}
-			
 			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
 			Delay(1000);
 			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
 			push_transmit = 0;
 		}
 		
-		if (size > 5500 && !check_capacity)
+		if (address_list_now == ((uint32_t)0x08007800))
 		{
-			Save_Data(buf_u8_to_u16(buffer, size, buf_u16), u16_size, new_buf);
 			check_capacity = 1;
+			push_on_off = 0;
 		}
 		if (check_capacity)
 		{

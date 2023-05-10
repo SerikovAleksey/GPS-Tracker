@@ -1,7 +1,9 @@
 #include "nmea.h"
 
 uint8_t transmit_buf[5700] = {0};
-
+uint8_t check_data = 0;
+uint32_t ind_t = 6;
+uint32_t ind_c = 0;
 
 int check_valid_data(uint8_t *nmea_buffer)
 {
@@ -53,7 +55,7 @@ int get_data_from_GPS(uint8_t *nmea_buffer, uint8_t type_data)
 	uint16_t nmea_indx = 0;
 	uint8_t amount_comma = 0;
 	uint8_t i = 0;
-		uint16_t k = 0;
+	uint16_t k = 0;
 		while (nmea_buffer[nmea_indx] != string[str_indx])
 	{
 		nmea_indx++;
@@ -66,6 +68,7 @@ int get_data_from_GPS(uint8_t *nmea_buffer, uint8_t type_data)
 	
 	if (len_str == str_indx)
 	{
+
 		while (nmea_buffer[nmea_indx] != VALID && nmea_buffer[nmea_indx] != INVALID)
 		{
 			if (nmea_buffer[nmea_indx] == ',' && k < 6) nmea_indx++;
@@ -87,24 +90,30 @@ int get_data_from_GPS(uint8_t *nmea_buffer, uint8_t type_data)
 			data_valid = 1;
 			//return 1;
 		}
-}
+
 
 	//check_valid_data(nmea_buffer);
-		if (nmea_buffer[nmea_indx] == INVALID) 
+		/*if (nmea_buffer[nmea_indx] == INVALID) 
 		{
 			data_valid = -1;
 		}
 		if (nmea_buffer[nmea_indx] == VALID) 
 		{
 			data_valid = 1;
-		}
-		while (data_valid == 1 && nmea_buffer[++nmea_indx] != 'E' && i < 30)
+		}*/
+		/*while (data_valid == 1 && nmea_buffer[++nmea_indx] != 'E' && i < 30)
 		{
 			if (nmea_buffer[nmea_indx] == ',') nmea_indx++;
 			location[i++] = nmea_buffer[nmea_indx];
+		}*/
+		while (data_valid == 1 && i < 23)
+		{
+			if (nmea_buffer[++nmea_indx] == ',') nmea_indx++;
+			location[i++] = nmea_buffer[nmea_indx];
+			//nmea_indx++;
 		}
 		
-		while (amount_comma < 1)
+		while (amount_comma < 3)
 		{
 			if (nmea_buffer[nmea_indx] == ',') amount_comma++;
 			nmea_indx++;
@@ -114,6 +123,7 @@ int get_data_from_GPS(uint8_t *nmea_buffer, uint8_t type_data)
 			time[k++] = nmea_buffer[nmea_indx++];
 		}
 		if (data_valid == 1) make_buf(type_data);
+	}
 	return data_valid; 
 } // get_data_from_GPS 
 
@@ -148,15 +158,18 @@ void set_coordinates()
 	transmit_buf[4 + ind_c + ind_t] = location[5];
 	transmit_buf[5 + ind_c + ind_t] = location[6];
 	//transmit_buf[6 + ind_c + ind_t] = location[7];
+	//transmit_buf[7 + ind_c + ind_t] = location[8];
 	transmit_buf[6 + ind_c + ind_t] = location[10];
+	
 	transmit_buf[7 + ind_c + ind_t] = location[11];
 	transmit_buf[8 + ind_c + ind_t] = location[12];
-	transmit_buf[9+ ind_c + ind_t] = location[13];
+	transmit_buf[9 + ind_c + ind_t] = location[13];
 	transmit_buf[10 + ind_c + ind_t] = location[14];
 	transmit_buf[11 + ind_c + ind_t] = location[15];
 	transmit_buf[12 + ind_c + ind_t] = location[17];
 	transmit_buf[13 + ind_c + ind_t] = location[18];
 	//transmit_buf[15 + ind_c + ind_t] = location[19];
+	//transmit_buf[17 + ind_c + ind_t] = location[20];
 	transmit_buf[14 + ind_c + ind_t] = location[22];
 
 	ind_c += 15;
@@ -165,16 +178,21 @@ void set_coordinates()
 
 void make_buf(uint8_t type_data)
 {
-	
-	if (ind_c == 0) 
+	if (ind_t == 0)
+	{
+		set_time(type_data);
+		set_coordinates();
+	}
+	if (ind_t == 6) 
 	{
 		set_date();
 		set_time(type_data);
 		set_coordinates();
 	}
-	else 
+	else
 	{
-		if (((transmit_buf[4 + ind_t + (ind_c - 15)] != location[5]) || (transmit_buf[13 + ind_t + (ind_c - 15)] != location[17])) && type_data == AVERAGE)
+		if (((transmit_buf[5 + ind_t + (ind_c - 15)] != location[6]) || (transmit_buf[13 + ind_t + (ind_c - 15)] != location[18])) && type_data == AVERAGE)
+		//if (((transmit_buf[5 + ind_t + (ind_c - 15)] != location[6]) || (transmit_buf[13 + ind_t + (ind_c - 15)] != location[18])) && type_data == AVERAGE)
 		{
 		set_time(type_data);
 		set_coordinates();
@@ -208,3 +226,13 @@ BUF get_transmit_buf()
 	buf.size = ind_c + ind_t;
 	return buf;
 } // get_transmit_buf
+
+void set_ind_t(uint32_t num)
+{
+	ind_t = num;
+}
+void set_ind_c(uint32_t num)
+{
+	ind_c = num;
+}
+
