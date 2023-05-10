@@ -15,3 +15,5 @@
 А также получить подробную версию плана можно [тут](https://github.com/SerikovAleksey/GPS-Tracer/blob/main/PLAN.md).
 
 Презентацию с защитой макета можно посмотреть [тут](https://github.com/SerikovAleksey/GPS-Tracker/blob/main/maket_defence.pptx).
+
+Инструкцию по использованию GPS TRACKER можно посмотреть [тут](https://github.com/SerikovAleksey/GPS-Tracker/blob/main/Инструкция/Инструкция.pdf).
