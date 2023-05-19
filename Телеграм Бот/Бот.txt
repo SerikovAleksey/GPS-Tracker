@@ -1,0 +1,191 @@
+import telebot
+from telebot import types
+import folium
+import pandas as pd
+from folium.plugins import MarkerCluster
+import re
+from telegram import InputFile
+
+bot = telebot.TeleBot("6145747635:AAHm9YSWwGSx1KrlsaL3_Kt3jCiQRyAIYX8")
+
+
+
+def save_map(message):
+    bot.send_message(chat_id=message.chat.id, text="Как вы хотите назвать карту?")
+    map_name = bot.register_next_step_handler(message, get_map_name)
+
+def get_map_name(message):
+    map_name = message.text
+
+    # Сохраняем карту как HTML-файл
+    m.save(map_name + '.html')
+    with open(map_name + '.html', "rb") as f:
+        bot.send_document(message.chat.id, document=f)
+
+    bot.send_message(chat_id=message.chat.id, text=f"Карта {map_name} отправлена!")
+
+
+@bot.message_handler(commands=['start'])
+def start(message):
+
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    bot.send_message(message.from_user.id, "Привет! Я твой бот-помошник! Отправьте мне файл c координатами")   
+
+
+@bot.message_handler(content_types=['document'])
+def handle_document(message):
+    file_info = bot.get_file(message.document.file_id)
+    downloaded_file = bot.download_file(file_info.file_path)
+    text = downloaded_file.decode('utf-8')
+
+    # Находим начало и конец строки с координатами
+    start = text.find("ASCII:\n") + 7
+    end = text.find("\n\nNo Sent Log")
+
+    # Извлекаем строку с координатами
+    coords_str = text[start:end]
+
+    # Убираем лишние символы и оставляем только координаты
+    coords = coords_str.replace("\n", "").replace(" ", "")
+
+    
+   ################################################################################################################################3
+
+
+    All_massive = coords;
+
+    First_six = All_massive[:6]
+    Obrabotca = All_massive[6:]
+
+    def cut_string(input_str):
+        # Используем регулярное выражение для поиска подстрок, начинающихся на A или S и заканчивающихся перед следующей буквой, но не содержащих следующую букву A или S
+        pattern = r'[AS][^AS]*?(?=[AS][^AS]*?(?:[AS]|$))'
+        matches = re.findall(pattern, input_str)
+        matches.append(All_massive[(len(All_massive)-22):])
+        return matches
+
+    Obrabotca2 = cut_string(Obrabotca)
+
+    i = 0
+    while i < len(Obrabotca2):
+        elem = Obrabotca2[i]
+        if ((len(elem) != 22) or (elem[-1] != "E") or (elem[13] != "N") or ((elem[0] != "A") and (elem[0] != "S"))):
+            Obrabotca2.pop(i)
+        else:
+            i += 1
+
+    Obrabotca2.insert(0, First_six)
+    All_massive = ''.join(Obrabotca2)
+
+
+
+
+    ###############################################################################################################################
+
+
+
+
+    # Делаем дату со временем
+    Data = All_massive[0:6]
+    Years = Data[4:6]
+    Mounth = Data[2:4]
+    Day = Data[0:2]
+    Data = Day + "-" + Mounth + "-20" + Years
+
+    # Считаем колличество точек
+    Number_point = 0
+    for letter in All_massive:
+        if letter == "N":
+            Number_point += 1
+
+    # Проверка точек на особость
+    All_massive = All_massive[6:]
+    Type_point = All_massive[::22]
+
+    # Время точки
+    Cordinat_list = [All_massive[i:i+22] for i in range(0, len(All_massive), 22)]
+    Time_list1 = [s[1:7] for s in Cordinat_list]
+    Time_list = []
+    for i in range(len(Time_list1)):
+        Time_list.append(Time_list1[i][:2] + ":" + Time_list1[i][2:4] + ":" + Time_list1[i][4:] + " " + Data) 
+
+    # Широтоа точки
+    Lat_cordinat_vers1 = [s[7:13] for s in Cordinat_list]
+    Lat_cordinat_vers2 = []
+    for i in range(len(Lat_cordinat_vers1)):
+        Lat_cordinat_vers2.append(Lat_cordinat_vers1[i][:2] + "." + Lat_cordinat_vers1[i][2:6]) 
+    Lat_cordinat_vers3 = [float(x) for x in Lat_cordinat_vers2]
+    Lat_cordinat = []
+    for number in Lat_cordinat_vers3:
+        integer_part = int(number)  # целая часть числа
+        fractional_part = number - integer_part  # дробная часть числа
+        minutes = (fractional_part / 60) * 100 + integer_part  # перевод в минуты с десятичной точностью
+        minutes_rounded = round(minutes, 4)  # округляем результат до 4 знаков после запятой
+        Lat_cordinat.append(minutes_rounded)  # добавляем результат в массив
+
+
+    # Долгота точки
+    Lon_cordinat_vers1 = [s[15:21] for s in Cordinat_list]
+    Lon_cordinat_vers2 = []
+    for i in range(len(Lon_cordinat_vers1)):
+        Lon_cordinat_vers2.append(Lon_cordinat_vers1[i][:2] + "." + Lon_cordinat_vers1[i][2:6]) 
+    Lon_cordinat_vers3 = [float(x) for x in Lon_cordinat_vers2]
+    Lon_cordinat = []
+    for number in Lon_cordinat_vers3:
+        integer_part = int(number)  # целая часть числа
+        fractional_part = number - integer_part  # дробная часть числа
+        minutes = (fractional_part / 60) * 100 + integer_part  # перевод в минуты с десятичной точностью
+        minutes_rounded = round(minutes, 4)  # округляем результат до 4 знаков после запятой
+        Lon_cordinat.append(minutes_rounded)  # добавляем результат в массив
+
+
+
+
+
+    ###############################################################################################################################
+
+
+    # Создаем DataFrame с координатами и временем точек
+    data = pd.DataFrame({
+       'lat': Lat_cordinat,
+       'lon': Lon_cordinat,
+       'type': Type_point,
+       'time': Time_list
+    })
+
+    # Создаем объект карты
+    global m
+    m = folium.Map(location=[Lat_cordinat[0], Lon_cordinat[0]], zoom_start=18)
+
+    # Добавляем линии на карту
+    for i in range(len(data)-1):
+        pointA = [data.iloc[i]['lat'], data.iloc[i]['lon']]
+        pointB = [data.iloc[i+1]['lat'], data.iloc[i+1]['lon']]
+        folium.PolyLine(locations=[pointA, pointB], color='red', weight=3, opacity=0.7, smooth_factor=2).add_to(m)
+
+    # Добавляем маркеры на карту
+    for i, row in data.iterrows():
+      if Type_point[i] == "A":
+        folium.CircleMarker(location=[row['lat'], row['lon']], radius=20, color='red', opacity=0, fill=True, fill_color='red', fill_opacity=0, popup=row['time']).add_to(m)
+
+    # Создаем пустой кластер
+    marker_cluster = MarkerCluster().add_to(m)
+
+    # Добавляем каждую точку в кластер
+    for index, row in data.iterrows():
+      if Type_point[index] == "S":
+        folium.CircleMarker(location=[row['lat'], row['lon']], radius=5,
+                            color='red', opacity=0.7, fill=True, fill_color='blue',
+                            fill_opacity=1, popup=row['time']).add_to(marker_cluster)
+
+    for i, row in data.iterrows():
+      if Type_point[i] == "S":
+        folium.CircleMarker(location=[row['lat'], row['lon']], radius=20, color='red', opacity=0, fill=True, fill_color='blue', fill_opacity=0, popup=row['time']).add_to(m)
+
+    save_map(message)
+
+
+    
+
+
+bot.polling(none_stop=True, interval=0) #обязательная для работы бота часть
