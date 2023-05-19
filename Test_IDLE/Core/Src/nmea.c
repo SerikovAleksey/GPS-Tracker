@@ -48,7 +48,7 @@ int check_valid_data(uint8_t *nmea_buffer)
 	return 0;
 }
 
-int get_data_from_GPS(uint8_t *nmea_buffer, uint8_t type_data) 
+int nmea_handler(uint8_t *nmea_buffer, uint8_t type_data) 
 {
 	uint8_t str_indx = 0;
 	uint16_t len_str = strlen (string);
@@ -83,34 +83,15 @@ int get_data_from_GPS(uint8_t *nmea_buffer, uint8_t type_data)
 		if (nmea_buffer[nmea_indx] == INVALID) 
 		{
 			data_valid = -1;
-			//return -1;
 		}
 		if (nmea_buffer[nmea_indx] == VALID) 
 		{
 			data_valid = 1;
-			//return 1;
 		}
-
-
-	//check_valid_data(nmea_buffer);
-		/*if (nmea_buffer[nmea_indx] == INVALID) 
-		{
-			data_valid = -1;
-		}
-		if (nmea_buffer[nmea_indx] == VALID) 
-		{
-			data_valid = 1;
-		}*/
-		/*while (data_valid == 1 && nmea_buffer[++nmea_indx] != 'E' && i < 30)
-		{
-			if (nmea_buffer[nmea_indx] == ',') nmea_indx++;
-			location[i++] = nmea_buffer[nmea_indx];
-		}*/
 		while (data_valid == 1 && i < 23)
 		{
 			if (nmea_buffer[++nmea_indx] == ',') nmea_indx++;
 			location[i++] = nmea_buffer[nmea_indx];
-			//nmea_indx++;
 		}
 		
 		while (amount_comma < 3)
@@ -157,8 +138,6 @@ void set_coordinates()
 	transmit_buf[3 + ind_c + ind_t] = location[3];
 	transmit_buf[4 + ind_c + ind_t] = location[5];
 	transmit_buf[5 + ind_c + ind_t] = location[6];
-	//transmit_buf[6 + ind_c + ind_t] = location[7];
-	//transmit_buf[7 + ind_c + ind_t] = location[8];
 	transmit_buf[6 + ind_c + ind_t] = location[10];
 	
 	transmit_buf[7 + ind_c + ind_t] = location[11];
@@ -168,8 +147,6 @@ void set_coordinates()
 	transmit_buf[11 + ind_c + ind_t] = location[15];
 	transmit_buf[12 + ind_c + ind_t] = location[17];
 	transmit_buf[13 + ind_c + ind_t] = location[18];
-	//transmit_buf[15 + ind_c + ind_t] = location[19];
-	//transmit_buf[17 + ind_c + ind_t] = location[20];
 	transmit_buf[14 + ind_c + ind_t] = location[22];
 
 	ind_c += 15;
@@ -192,7 +169,6 @@ void make_buf(uint8_t type_data)
 	else
 	{
 		if (((transmit_buf[5 + ind_t + (ind_c - 15)] != location[6]) || (transmit_buf[13 + ind_t + (ind_c - 15)] != location[18])) && type_data == AVERAGE)
-		//if (((transmit_buf[5 + ind_t + (ind_c - 15)] != location[6]) || (transmit_buf[13 + ind_t + (ind_c - 15)] != location[18])) && type_data == AVERAGE)
 		{
 		set_time(type_data);
 		set_coordinates();
@@ -215,7 +191,6 @@ void transmit_data(uint8_t *buf, uint16_t len)
 		HAL_UART_Transmit(&huart2, &buf[98 * i], len, 100);
 	}
 	HAL_UART_Transmit(&huart2, &buf[98 * integer], floatt, 100);
-	//free(buf);
 } // transmit_data
 
 

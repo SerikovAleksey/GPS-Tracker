@@ -16,7 +16,13 @@ static uint16_t t1 = 0;
 extern TIM_HandleTypeDef htim2;
 
 //---------FUNCTIONS---------//
+
+
+// Function to define how long button was pushed
 uint16_t Read_Button_Time_Push(uint16_t but_name, uint16_t t0);
+
+
+// Function to make delay in milliseconds
 void Delay(uint16_t time_ms);
 
 #endif //_BUTTON_

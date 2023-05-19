@@ -29,22 +29,30 @@ extern UART_HandleTypeDef huart2; // UART
 //---------FUNCTIONS---------//
 
 // Function to get data from GPS
-int get_data_from_GPS(uint8_t *nmea_buffer, uint8_t type_data);
+int nmea_handler(uint8_t *nmea_buffer, uint8_t type_data);
 
+// Function to check validation of received data
 int check_valid_data(uint8_t *buf);
 
 // Function to transmit data 
 void transmit_data(uint8_t *buf, uint16_t len);
 
+// Function to save time
 void set_time(uint8_t type_data);
 
+// Function to save date
 void set_date();
 
+// Function to save coordinates
 void set_coordinates();
 
+// Function to make transmited buffer
 void make_buf(uint8_t type_data);
 
+// Function to get buffer and size
 BUF get_transmit_buf();
+
+// Functions to set pointer 
 void set_ind_t(uint32_t num);
 void set_ind_c(uint32_t num);
 
